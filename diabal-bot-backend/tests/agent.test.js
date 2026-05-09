@@ -19,6 +19,15 @@ function loadTestSession(sessionId = 'agent-room') {
         sourceColumn: 'Supplier Email',
         sourceIndex: 0,
         confidence: 1
+      },
+      {
+        field: 'qa_owner',
+        label: 'QA Owner',
+        description: 'Dynamic field imported from the source file.',
+        sourceColumn: 'QA Owner',
+        sourceIndex: 1,
+        confidence: 1,
+        isDynamic: true
       }
     ],
     products: [
@@ -37,7 +46,8 @@ function loadTestSession(sessionId = 'agent-room') {
         facility_name: '',
         facility_address: '',
         facility_email: '',
-        facility_contact_name: ''
+        facility_contact_name: '',
+        qa_owner: 'Mariana'
       }
     ]
   })
@@ -53,6 +63,18 @@ test('updates fields through chat command', async () => {
 
   assert.equal(response.action, 'update')
   assert.equal(getFinalJson('update-room')[0].supplier_email, 'new@example.com')
+})
+
+test('updates dynamic JSON fields through chat command', async () => {
+  loadTestSession('dynamic-update-room')
+
+  const response = await runCsvAgent(
+    'set row 1 qa_owner to Diego',
+    'dynamic-update-room'
+  )
+
+  assert.equal(response.action, 'update')
+  assert.equal(getFinalJson('dynamic-update-room')[0].qa_owner, 'Diego')
 })
 
 test('confirms final JSON through chat command', async () => {

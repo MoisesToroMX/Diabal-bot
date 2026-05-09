@@ -18,7 +18,7 @@ function ChatsList() {
   const selected = chatId ? new Set([chatId]) : new Set<string>();
 
   return (
-    <Card className="m-2 shrink-0 bg-zinc-800/70 p-3 text-white md:m-0 md:h-full md:w-60 xl:w-64">
+    <Card className="w-full shrink-0 bg-zinc-800/70 p-3 text-white md:h-full md:w-60 xl:w-64">
       <CardHeader className="flex flex-col items-start p-1 md:flex">
         <span className="text-lg text-left font-semibold my-2">Chats</span>
       </CardHeader>
@@ -54,8 +54,8 @@ function ChatsList() {
 
 function chatsContainer() {
   return (
-    <div className="min-h-dvh overflow-x-hidden bg-black p-2 md:h-dvh md:p-3">
-      <div className="mx-auto flex h-full w-full max-w-[1720px] flex-col gap-2 md:flex-row md:gap-3">
+    <div className="min-h-dvh overflow-x-hidden bg-zinc-950 px-3 py-3 md:h-dvh md:px-4">
+      <div className="mx-auto flex h-full w-full max-w-[1180px] flex-col gap-3 md:flex-row">
         <ChatsList />
 
         <Divider className="hidden md:block" orientation="vertical" />

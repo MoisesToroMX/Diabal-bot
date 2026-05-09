@@ -43,3 +43,26 @@ test('detects unstructured header row and variant column names', async () => {
   assert.equal(result.products[0].supplier_email, 'vendor@example.com')
   assert.equal(result.products[0].material_composition, '100% cotton')
 })
+
+test('adds unmatched source columns as dynamic JSON properties', async () => {
+  const csv = [
+    'Product Name,Purchase Order,Carbon Score,QA Owner',
+    'Linen Shirt,PO-22,A,Mariana'
+  ].join('\n')
+
+  const result = await parseSpreadsheetBuffer({
+    buffer: Buffer.from(csv),
+    fileName: 'dynamic.csv',
+    mimeType: 'text/csv'
+  })
+
+  assert.equal(result.products[0].product_name, 'Linen Shirt')
+  assert.equal(result.products[0].purchase_order, 'PO-22')
+  assert.equal(result.products[0].carbon_score, 'A')
+  assert.equal(result.products[0].qa_owner, 'Mariana')
+  assert.equal(
+    result.mappings.find((mapping) => mapping.field === 'carbon_score')
+      .isDynamic,
+    true
+  )
+})

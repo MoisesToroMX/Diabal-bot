@@ -1,6 +1,6 @@
 import { parse as parseCsv } from 'csv-parse/sync'
 import readXlsxFile from 'read-excel-file/node'
-import { PRODUCT_FIELDS } from './schema.js'
+import { PRODUCT_FIELD_KEYS, PRODUCT_FIELDS } from './schema.js'
 
 const MAX_ROWS = 5000
 const MAX_CELL_LENGTH = 1000
@@ -104,6 +104,29 @@ function uniqueHeaders(headers) {
   })
 }
 
+function normalizeKey(value, fallback) {
+  const key = normalizeText(value).replace(/\s+/g, '_')
+  const cleanKey = key.replace(/_+/g, '_').replace(/^_+|_+$/g, '')
+
+  if (!cleanKey) return fallback
+
+  return /^\d/.test(cleanKey) ? `column_${cleanKey}` : cleanKey
+}
+
+function uniqueKey(baseKey, usedKeys) {
+  let key = baseKey
+  let suffix = 2
+
+  while (usedKeys.has(key)) {
+    key = `${baseKey}_${suffix}`
+    suffix += 1
+  }
+
+  usedKeys.add(key)
+
+  return key
+}
+
 export function mapHeaders(headers) {
   const candidates = []
   const mappedIndexes = new Set()
@@ -168,10 +191,40 @@ export function mapHeaders(headers) {
   })
 }
 
+function mapDynamicHeaders(headers, targetMappings) {
+  const mappedIndexes = new Set(
+    targetMappings
+      .map((mapping) => mapping.sourceIndex)
+      .filter((sourceIndex) => sourceIndex !== null)
+  )
+  const usedKeys = new Set(PRODUCT_FIELD_KEYS)
+
+  return headers
+    .map((header, index) => {
+      if (mappedIndexes.has(index)) return null
+
+      const baseKey = normalizeKey(header, `column_${index + 1}`)
+      const fieldKey = uniqueKey(baseKey, usedKeys)
+
+      return {
+        field: fieldKey,
+        label: header,
+        description: 'Dynamic field imported from the source file.',
+        sourceColumn: header,
+        sourceIndex: index,
+        confidence: 1,
+        isDynamic: true
+      }
+    })
+    .filter(Boolean)
+}
+
 function rowsToProducts(rows) {
   const headerIndex = detectHeaderRow(rows)
   const headers = uniqueHeaders(rows[headerIndex] ?? [])
-  const mappings = mapHeaders(headers)
+  const targetMappings = mapHeaders(headers)
+  const dynamicMappings = mapDynamicHeaders(headers, targetMappings)
+  const mappings = [...targetMappings, ...dynamicMappings]
   const dataRows = rows.slice(headerIndex + 1, headerIndex + 1 + MAX_ROWS)
   const warnings = []
   const products = []

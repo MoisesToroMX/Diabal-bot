@@ -14,12 +14,18 @@ import {
   Chip,
   Divider,
   Input,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalHeader,
   User,
+  useDisclosure,
 } from "@heroui/react";
 import {
   ArrowDownTrayIcon,
   ArrowUpIcon,
   CloudArrowUpIcon,
+  DocumentTextIcon,
 } from "@heroicons/react/24/solid";
 
 import {
@@ -73,7 +79,7 @@ function PreviewTable({ product }: { product?: ProductRecord }) {
   );
 }
 
-function MappingPanel({
+function FileDetailsContent({
   chatId,
   session,
 }: {
@@ -88,21 +94,21 @@ function MappingPanel({
 
   if (!session) {
     return (
-      <Card className="min-h-40 shrink-0 bg-zinc-800/70 p-4 text-zinc-200 xl:w-[clamp(320px,24vw,420px)]">
+      <div className="space-y-3 text-zinc-200">
         <h2 className="text-sm font-semibold">Workflow</h2>
-        <div className="mt-3 space-y-2 text-sm text-zinc-300">
+        <div className="space-y-2 text-sm text-zinc-300">
           <p>1. Upload a CSV or XLSX product file.</p>
           <p>2. Review the detected JSON field mapping.</p>
           <p>3. Edit values with chat commands.</p>
           <p>4. Confirm and download the final JSON.</p>
         </div>
-      </Card>
+      </div>
     );
   }
 
   return (
-    <Card className="shrink-0 overflow-hidden bg-zinc-800/70 text-zinc-100 xl:w-[clamp(320px,24vw,420px)]">
-      <div className="space-y-3 p-4">
+    <div className="space-y-4 text-zinc-100" data-testid="file-details-panel">
+      <div className="space-y-3">
         <div>
           <p className="text-xs uppercase tracking-wide text-zinc-400">File</p>
           <h2 className="break-words text-sm font-semibold">
@@ -148,7 +154,7 @@ function MappingPanel({
 
       <Divider />
 
-      <div className="max-h-56 overflow-auto p-4 xl:max-h-[34dvh]">
+      <div className="max-h-64 overflow-auto">
         <h3 className="mb-2 text-sm font-semibold">Field mapping</h3>
         <div className="space-y-2">
           {session.mappings.map((mapping) => (
@@ -158,13 +164,20 @@ function MappingPanel({
             >
               <div className="flex items-start justify-between gap-2">
                 <span className="text-xs font-semibold">{mapping.field}</span>
-                <Chip
-                  color={mapping.sourceColumn ? "success" : "warning"}
-                  size="sm"
-                  variant="flat"
-                >
-                  {mapping.sourceColumn ? `${mapping.confidence}` : "missing"}
-                </Chip>
+                <div className="flex shrink-0 flex-wrap justify-end gap-1">
+                  {mapping.isDynamic && (
+                    <Chip color="secondary" size="sm" variant="flat">
+                      dynamic
+                    </Chip>
+                  )}
+                  <Chip
+                    color={mapping.sourceColumn ? "success" : "warning"}
+                    size="sm"
+                    variant="flat"
+                  >
+                    {mapping.sourceColumn ? `${mapping.confidence}` : "missing"}
+                  </Chip>
+                </div>
               </div>
               <p className="mt-1 text-xs text-zinc-400">
                 {mapping.sourceColumn || "No source column detected"}
@@ -176,11 +189,50 @@ function MappingPanel({
 
       <Divider />
 
-      <div className="p-4">
+      <div>
         <h3 className="mb-2 text-sm font-semibold">First row preview</h3>
         <PreviewTable product={session.products[0]} />
       </div>
-    </Card>
+    </div>
+  );
+}
+
+function FileDetailsModal({
+  chatId,
+  session,
+  isOpen,
+  onOpenChange,
+}: {
+  chatId: string;
+  session: SessionData | null;
+  isOpen: boolean;
+  onOpenChange: (isOpen: boolean) => void;
+}) {
+  return (
+    <Modal
+      backdrop="blur"
+      classNames={{
+        base: "bg-zinc-900 text-zinc-100",
+        closeButton: "text-zinc-100 hover:bg-zinc-800",
+      }}
+      isOpen={isOpen}
+      scrollBehavior="inside"
+      size="3xl"
+      onOpenChange={onOpenChange}
+    >
+      <ModalContent data-testid="file-details-modal">
+        {() => (
+          <>
+            <ModalHeader className="flex flex-col gap-1">
+              {session ? "File details" : "Workflow"}
+            </ModalHeader>
+            <ModalBody className="pb-6">
+              <FileDetailsContent chatId={chatId} session={session} />
+            </ModalBody>
+          </>
+        )}
+      </ModalContent>
+    </Modal>
   );
 }
 
@@ -214,6 +266,7 @@ export default function ChatView() {
   const [sessionData, setSessionData] = useState<SessionData | null>(null);
   const [text, setText] = useState("");
   const [isDraggingFile, setIsDraggingFile] = useState(false);
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const dragDepthRef = useRef(0);
 
@@ -377,9 +430,9 @@ export default function ChatView() {
   };
 
   return (
-    <div className="grid min-h-full w-full min-w-0 grid-cols-1 gap-2 md:gap-3 xl:h-full xl:grid-cols-[minmax(0,1fr)_auto]">
+    <div className="min-h-full w-full min-w-0 xl:h-full">
       <Card
-        className="relative flex min-h-[58dvh] min-w-0 flex-col bg-zinc-800/70 md:min-h-[70dvh] xl:h-full xl:min-h-0"
+        className="relative flex min-h-0 min-w-0 flex-col bg-zinc-800/70 md:h-full"
         data-testid="chat-drop-zone"
         onDragEnter={handleDragEnter}
         onDragLeave={handleDragLeave}
@@ -398,18 +451,32 @@ export default function ChatView() {
           </div>
         )}
 
-        <div className="flex w-full items-center gap-3 px-3 py-3 md:px-4">
+        <div className="flex w-full flex-col gap-3 px-3 py-3 min-[480px]:flex-row min-[480px]:items-center min-[480px]:justify-between md:px-4">
           <User
             avatarProps={{ src: images.diabal }}
             className="font-semibold"
             description="Excel to JSON agent"
             name="Diabal"
           />
+          <Button
+            className="w-full shrink-0 min-[480px]:w-auto"
+            color={sessionData ? "primary" : "default"}
+            data-testid="file-details-button"
+            size="sm"
+            startContent={<DocumentTextIcon className="size-4" />}
+            variant="flat"
+            onPress={onOpen}
+          >
+            {sessionData ? "File details" : "Workflow"}
+          </Button>
         </div>
 
         <Divider />
 
-        <div className="min-h-0 flex-1 space-y-2 overflow-y-auto px-3 py-3 md:px-4">
+        <div
+          className="min-h-36 max-h-[42dvh] flex-1 space-y-2 overflow-y-auto overscroll-contain px-3 py-3 md:max-h-[calc(100dvh-17rem)] md:px-4 xl:max-h-[calc(100dvh-15rem)]"
+          data-testid="messages-scroll"
+        >
           {messages.map((message) => (
             <MessageRow
               key={message.id}
@@ -454,7 +521,12 @@ export default function ChatView() {
         </form>
       </Card>
 
-      <MappingPanel chatId={chatId} session={sessionData} />
+      <FileDetailsModal
+        chatId={chatId}
+        isOpen={isOpen}
+        session={sessionData}
+        onOpenChange={onOpenChange}
+      />
     </div>
   );
 }

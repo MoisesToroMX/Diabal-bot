@@ -29,6 +29,15 @@ function makeSession(overrides: Partial<SessionData> = {}): SessionData {
         sourceIndex: null,
         confidence: 0,
       },
+      {
+        field: "qa_owner",
+        label: "QA Owner",
+        description: "",
+        sourceColumn: "QA Owner",
+        sourceIndex: 2,
+        confidence: 1,
+        isDynamic: true,
+      },
     ],
     warnings: [],
     headerRow: 1,
@@ -47,7 +56,8 @@ describe("session helpers", () => {
     const summary = getSessionSummary(makeSession());
 
     expect(summary).toContain("Loaded 3 products from products.csv.");
-    expect(summary).toContain("Mapped 1/2 JSON fields.");
+    expect(summary).toContain("Mapped 1/2 target fields.");
     expect(summary).toContain("1 fields need review.");
+    expect(summary).toContain("Added 1 dynamic JSON fields.");
   });
 });

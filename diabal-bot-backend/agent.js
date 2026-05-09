@@ -44,18 +44,25 @@ export function getFinalJson(sessionId) {
 }
 
 function summarizeSession(session) {
-  const mappedCount = session.mappings.filter((mapping) => {
+  const targetMappings = session.mappings.filter((mapping) => {
+    return !mapping.isDynamic
+  })
+  const dynamicCount = session.mappings.length - targetMappings.length
+  const mappedCount = targetMappings.filter((mapping) => {
     return mapping.sourceColumn
   }).length
   const warningText = session.warnings.length
     ? ` Warnings: ${session.warnings.join(' | ')}`
     : ''
+  const dynamicText = dynamicCount
+    ? ` Added ${dynamicCount} dynamic JSON fields.`
+    : ''
 
   return [
     `Loaded ${session.products.length} products from ${session.originalFileName}.`,
-    `Mapped ${mappedCount}/${session.mappings.length} target fields.`,
+    `Mapped ${mappedCount}/${targetMappings.length} target fields.`,
     'Ask for "mapping", "show row 1", "set row 2 supplier_email to x@y.com",',
-    `or "confirm".${warningText}`
+    `or "confirm".${dynamicText}${warningText}`
   ].join(' ')
 }
 
@@ -114,8 +121,22 @@ function scoreField(input, field) {
   }, 0)
 }
 
-function findField(input) {
-  const best = PRODUCT_FIELDS.reduce((current, field) => {
+function getSessionFields(session) {
+  const dynamicFields = session.mappings
+    .filter((mapping) => mapping.isDynamic)
+    .map((mapping) => ({
+      key: mapping.field,
+      label: mapping.label,
+      synonyms: [mapping.field, mapping.label, mapping.sourceColumn].filter(
+        Boolean
+      )
+    }))
+
+  return [...PRODUCT_FIELDS, ...dynamicFields]
+}
+
+function findField(input, session) {
+  const best = getSessionFields(session).reduce((current, field) => {
     const score = scoreField(input, field)
 
     return score > current.score ? { field, score } : current
@@ -130,9 +151,9 @@ function parseRowNumber(input) {
   return match ? Number(match[1]) : null
 }
 
-function parseUpdate(input) {
+function parseUpdate(input, session) {
   const rowNumber = parseRowNumber(input)
-  const field = findField(input)
+  const field = findField(input, session)
 
   if (!rowNumber || !field) return null
 
@@ -165,7 +186,7 @@ function updateField(session, update) {
   }
 
   if (!(update.field in product)) {
-    return `Field "${update.field}" does not exist in target schema.`
+    return `Field "${update.field}" does not exist in the current JSON.`
   }
 
   product[update.field] = update.value.slice(0, 1000)
@@ -222,7 +243,7 @@ export async function runCsvAgent(input, sessionId) {
     }
   }
 
-  const update = parseUpdate(text)
+  const update = parseUpdate(text, session)
 
   if (update) {
     const response = updateField(session, update)

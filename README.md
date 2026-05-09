@@ -3,8 +3,9 @@
 Prototype for the Excel-to-JSON chat flow challenge.
 
 The app lets a user upload a CSV or XLSX product file, maps flexible source
-columns into a fixed product JSON schema, shows the detected mapping, allows
-small edits through a chat-style interface, and downloads the final JSON.
+columns into a product JSON schema, keeps unmatched columns as dynamic JSON
+properties, allows small edits through a chat-style interface, and downloads
+the final JSON.
 
 ## Tech stack
 
@@ -40,8 +41,8 @@ Use the app:
 
 1. Open `http://localhost:8081`.
 2. Select the Diabal chat.
-3. Upload a `.csv` or `.xlsx` product file.
-4. Review the field mapping panel on the right.
+3. Upload or drag and drop a `.csv` or `.xlsx` product file.
+4. Open `File details` to review the detected mapping and dynamic fields.
 5. Use chat commands to inspect or edit values.
 6. Click `Download final JSON`.
 
@@ -117,8 +118,9 @@ curl -OJ http://localhost:3001/api/sessions/demo-room/final-json
 
 The backend imports the spreadsheet into rows, scans the first rows to find the
 most likely header row, maps source headers to the target JSON fields through a
-synonym-based scorer, and stores normalized product records in memory by chat
-session.
+synonym-based scorer, and keeps unmatched source columns as safe snake_case
+dynamic properties in the final JSON. Product records are stored in memory by
+chat session.
 
 The frontend sends real files to the backend, displays:
 
@@ -126,6 +128,7 @@ The frontend sends real files to the backend, displays:
 - number of imported products,
 - source column used for every JSON field,
 - confidence score,
+- dynamic-field badges for properties created from unmatched columns,
 - warnings for missing fields,
 - first-row preview,
 - final JSON download action.

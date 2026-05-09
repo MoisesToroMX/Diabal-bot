@@ -7,6 +7,7 @@ type FieldMapping = {
   sourceColumn: string | null;
   sourceIndex: number | null;
   confidence: number;
+  isDynamic?: boolean;
 };
 
 export type ProductRecord = Record<string, string>;

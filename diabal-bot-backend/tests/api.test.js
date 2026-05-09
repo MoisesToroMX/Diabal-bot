@@ -9,8 +9,8 @@ test.after(() => {
 
 test('uploads CSV, stores session and downloads final JSON', async () => {
   const csv = [
-    'Product Name,Purchase Order,Country,Vendor,Vendor Email',
-    'Linen Shirt,PO-22,Italy,North Mill,hello@example.com'
+    'Product Name,Purchase Order,Country,Vendor,Vendor Email,Internal Notes',
+    'Linen Shirt,PO-22,Italy,North Mill,hello@example.com,Priority sample'
   ].join('\n')
 
   const uploadResponse = await request(app)
@@ -22,6 +22,7 @@ test('uploads CSV, stores session and downloads final JSON', async () => {
   assert.equal(uploadResponse.body.ok, true)
   assert.equal(uploadResponse.body.rowCount, 1)
   assert.equal(uploadResponse.body.products[0].product_name, 'Linen Shirt')
+  assert.equal(uploadResponse.body.products[0].internal_notes, 'Priority sample')
 
   const sessionResponse = await request(app)
     .get('/api/sessions/test-room')
@@ -34,6 +35,7 @@ test('uploads CSV, stores session and downloads final JSON', async () => {
     .expect(200)
 
   assert.equal(jsonResponse.body[0].purchase_order, 'PO-22')
+  assert.equal(jsonResponse.body[0].internal_notes, 'Priority sample')
 })
 
 test('rejects unsupported uploads', async () => {
