@@ -18,14 +18,16 @@ function ChatsList() {
   const selected = chatId ? new Set([chatId]) : new Set<string>();
 
   return (
-    <Card className="w-full shrink-0 bg-zinc-800/70 p-3 text-white md:h-full md:w-60 xl:w-64">
-      <CardHeader className="flex flex-col items-start p-1 md:flex">
-        <span className="text-lg text-left font-semibold my-2">Chats</span>
+    <Card className="max-h-40 w-full shrink-0 bg-zinc-800/70 p-2 text-white md:max-h-none md:h-full md:w-60 md:p-3 xl:w-64">
+      <CardHeader className="flex flex-col items-start p-1">
+        <span className="my-1 text-left text-base font-semibold md:my-2 md:text-lg">
+          Chats
+        </span>
       </CardHeader>
 
       <Divider />
 
-      <CardBody className="p-0 dark:border-default-100">
+      <CardBody className="min-h-0 overflow-y-auto p-0 dark:border-default-100">
         <Listbox
           aria-label="Actions"
           className="w-full"
@@ -54,14 +56,14 @@ function ChatsList() {
 
 function chatsContainer() {
   return (
-    <div className="min-h-dvh overflow-x-hidden bg-zinc-950 px-3 py-3 md:h-dvh md:px-4">
-      <div className="mx-auto flex h-full w-full max-w-[1180px] flex-col gap-3 md:flex-row">
+    <div className="h-dvh overflow-hidden bg-zinc-950 px-2 py-2 md:px-4 md:py-3">
+      <div className="mx-auto flex h-full min-h-0 w-full max-w-[1180px] flex-col gap-2 md:flex-row md:gap-3">
         <ChatsList />
 
         <Divider className="hidden md:block" orientation="vertical" />
 
         <main className="flex min-h-0 min-w-0 flex-1">
-          <div className="min-h-0 min-w-0 flex-1">
+          <div className="flex min-h-0 min-w-0 flex-1">
             <Outlet />
           </div>
         </main>

@@ -430,9 +430,9 @@ export default function ChatView() {
   };
 
   return (
-    <div className="min-h-full w-full min-w-0 xl:h-full">
+    <div className="flex h-full min-h-0 w-full min-w-0">
       <Card
-        className="relative flex min-h-0 min-w-0 flex-col bg-zinc-800/70 md:h-full"
+        className="relative flex h-full min-h-0 min-w-0 flex-1 flex-col bg-zinc-800/70"
         data-testid="chat-drop-zone"
         onDragEnter={handleDragEnter}
         onDragLeave={handleDragLeave}
@@ -474,7 +474,7 @@ export default function ChatView() {
         <Divider />
 
         <div
-          className="min-h-36 max-h-[42dvh] flex-1 space-y-2 overflow-y-auto overscroll-contain px-3 py-3 md:max-h-[calc(100dvh-17rem)] md:px-4 xl:max-h-[calc(100dvh-15rem)]"
+          className="min-h-0 flex-1 space-y-2 overflow-y-auto overscroll-contain px-3 py-3 md:px-4"
           data-testid="messages-scroll"
         >
           {messages.map((message) => (

@@ -110,7 +110,8 @@ describe("ChatView", () => {
     expect(screen.getByTestId("messages-scroll")).toHaveClass(
       "overflow-y-auto",
     );
-    expect(screen.getByTestId("messages-scroll").className).toContain("max-h");
+    expect(screen.getByTestId("messages-scroll")).toHaveClass("flex-1");
+    expect(screen.getByTestId("messages-scroll")).toHaveClass("min-h-0");
     expect(screen.queryByText("products.csv")).not.toBeInTheDocument();
 
     await userEvent.click(detailsButton);
