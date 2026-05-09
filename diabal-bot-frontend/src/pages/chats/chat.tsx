@@ -40,8 +40,22 @@ import { UploadFile } from "@/components/UploadFile";
 import { images } from "@/variables/data";
 import { Msg, MessageRowProps, ProductRecord, SessionData } from "@/types";
 
+const guideMessage: Msg = {
+  id: "diabal-guide",
+  from: "bot",
+  text: [
+    "Soy Diabal Bot. Convierto CSV/XLSX de productos en JSON.",
+    "Paso 1: sube o arrastra un archivo.",
+    "Paso 2: abre Detalles para revisar mapeo y campos dinámicos.",
+    'Paso 3: usa comandos como "mapeo", "ver fila 1" o',
+    '"cambia fila 2 supplier_email a qa@example.com".',
+    'Paso 4: escribe "confirmar" y descarga el JSON final.',
+  ].join("\n"),
+  at: "",
+};
+
 const seed: Record<string, Msg[]> = {
-  "1": [],
+  "1": [guideMessage],
 };
 
 function makeLocalMessage(from: Msg["from"], text: string): Msg {
@@ -58,7 +72,7 @@ function makeLocalMessage(from: Msg["from"], text: string): Msg {
 
 function PreviewTable({ product }: { product?: ProductRecord }) {
   if (!product) {
-    return <p className="text-xs text-zinc-400">No rows loaded.</p>;
+    return <p className="text-xs text-zinc-400">No hay filas cargadas.</p>;
   }
 
   return (
@@ -95,12 +109,12 @@ function FileDetailsContent({
   if (!session) {
     return (
       <div className="space-y-3 text-zinc-200">
-        <h2 className="text-sm font-semibold">Workflow</h2>
+        <h2 className="text-sm font-semibold">Guía</h2>
         <div className="space-y-2 text-sm text-zinc-300">
-          <p>1. Upload a CSV or XLSX product file.</p>
-          <p>2. Review the detected JSON field mapping.</p>
-          <p>3. Edit values with chat commands.</p>
-          <p>4. Confirm and download the final JSON.</p>
+          <p>1. Sube o arrastra un CSV/XLSX de productos.</p>
+          <p>2. Revisa mapeo y campos dinámicos en Detalles.</p>
+          <p>3. Corrige datos con comandos en español o inglés.</p>
+          <p>4. Confirma y descarga el JSON final.</p>
         </div>
       </div>
     );
@@ -110,7 +124,9 @@ function FileDetailsContent({
     <div className="space-y-4 text-zinc-100" data-testid="file-details-panel">
       <div className="space-y-3">
         <div>
-          <p className="text-xs uppercase tracking-wide text-zinc-400">File</p>
+          <p className="text-xs uppercase tracking-wide text-zinc-400">
+            Archivo
+          </p>
           <h2 className="break-words text-sm font-semibold">
             {session.originalFileName}
           </h2>
@@ -118,21 +134,21 @@ function FileDetailsContent({
 
         <div className="flex flex-wrap gap-2">
           <Chip color="primary" size="sm" variant="flat">
-            {session.rowCount} products
+            {session.rowCount} productos
           </Chip>
           <Chip size="sm" variant="flat">
-            Header row {session.headerRow}
+            Encabezado fila {session.headerRow}
           </Chip>
           {session.confirmedAt && (
             <Chip color="success" size="sm" variant="flat">
-              Confirmed
+              Confirmado
             </Chip>
           )}
         </div>
 
         {session.warnings.length > 0 && (
           <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3">
-            <p className="text-xs font-semibold text-amber-200">Warnings</p>
+            <p className="text-xs font-semibold text-amber-200">Advertencias</p>
             <ul className="mt-1 space-y-1 text-xs text-amber-100">
               {session.warnings.map((warning) => (
                 <li key={warning}>{warning}</li>
@@ -148,14 +164,14 @@ function FileDetailsContent({
           variant="flat"
           onPress={openDownload}
         >
-          Download final JSON
+          Descargar JSON final
         </Button>
       </div>
 
       <Divider />
 
       <div className="max-h-64 overflow-auto">
-        <h3 className="mb-2 text-sm font-semibold">Field mapping</h3>
+        <h3 className="mb-2 text-sm font-semibold">Mapeo de campos</h3>
         <div className="space-y-2">
           {session.mappings.map((mapping) => (
             <div
@@ -167,7 +183,7 @@ function FileDetailsContent({
                 <div className="flex shrink-0 flex-wrap justify-end gap-1">
                   {mapping.isDynamic && (
                     <Chip color="secondary" size="sm" variant="flat">
-                      dynamic
+                      dinámico
                     </Chip>
                   )}
                   <Chip
@@ -175,12 +191,14 @@ function FileDetailsContent({
                     size="sm"
                     variant="flat"
                   >
-                    {mapping.sourceColumn ? `${mapping.confidence}` : "missing"}
+                    {mapping.sourceColumn
+                      ? `${mapping.confidence}`
+                      : "faltante"}
                   </Chip>
                 </div>
               </div>
               <p className="mt-1 text-xs text-zinc-400">
-                {mapping.sourceColumn || "No source column detected"}
+                {mapping.sourceColumn || "Sin columna detectada"}
               </p>
             </div>
           ))}
@@ -190,7 +208,9 @@ function FileDetailsContent({
       <Divider />
 
       <div>
-        <h3 className="mb-2 text-sm font-semibold">First row preview</h3>
+        <h3 className="mb-2 text-sm font-semibold">
+          Vista previa de primera fila
+        </h3>
         <PreviewTable product={session.products[0]} />
       </div>
     </div>
@@ -224,7 +244,7 @@ function FileDetailsModal({
         {() => (
           <>
             <ModalHeader className="flex flex-col gap-1">
-              {session ? "File details" : "Workflow"}
+              {session ? "Detalles del archivo" : "Guía"}
             </ModalHeader>
             <ModalBody className="pb-6">
               <FileDetailsContent chatId={chatId} session={session} />
@@ -311,7 +331,7 @@ export default function ChatView() {
         ...currentMessages,
         makeLocalMessage(
           "bot",
-          "Invalid format. Only CSV and XLSX files are allowed.",
+          "Formato inválido. Solo se permiten archivos CSV y XLSX.",
         ),
       ]);
 
@@ -320,7 +340,7 @@ export default function ChatView() {
 
     const uploadMessage = makeLocalMessage(
       "admin",
-      `Uploaded file: ${file.name} (${formatFileSize(file.size)})`,
+      `Archivo cargado: ${file.name} (${formatFileSize(file.size)})`,
     );
 
     setMsgs((currentMessages) => [...currentMessages, uploadMessage]);
@@ -340,7 +360,7 @@ export default function ChatView() {
           "bot",
           error instanceof Error
             ? error.message
-            : "Upload failed. Check file format and try again.",
+            : "Falló la carga. Revisa el formato e intenta de nuevo.",
         ),
       ]);
     }
@@ -444,8 +464,10 @@ export default function ChatView() {
             <div className="flex flex-col items-center gap-3 rounded-2xl bg-zinc-950/80 px-6 py-5 text-center shadow-xl">
               <CloudArrowUpIcon className="size-10" />
               <div>
-                <p className="text-base font-semibold">Drop file to upload</p>
-                <p className="text-xs text-sky-100/80">CSV or XLSX</p>
+                <p className="text-base font-semibold">
+                  Suelta el archivo para cargarlo
+                </p>
+                <p className="text-xs text-sky-100/80">CSV o XLSX</p>
               </div>
             </div>
           </div>
@@ -455,7 +477,7 @@ export default function ChatView() {
           <User
             avatarProps={{ src: images.diabal }}
             className="font-semibold"
-            description="Excel to JSON agent"
+            description="Agente Excel a JSON"
             name="Diabal"
           />
           <Button
@@ -467,7 +489,7 @@ export default function ChatView() {
             variant="flat"
             onPress={onOpen}
           >
-            {sessionData ? "File details" : "Workflow"}
+            {sessionData ? "Detalles" : "Guía"}
           </Button>
         </div>
 
@@ -500,7 +522,7 @@ export default function ChatView() {
                 inputWrapper: "bg-transparent shadow-none",
                 input: "text-zinc-200 placeholder:text-zinc-400",
               }}
-              placeholder="Try: set row 2 supplier_email to qa@example.com"
+              placeholder="Prueba: cambia fila 2 supplier_email a qa@example.com"
               radius="lg"
               value={text}
               variant="flat"

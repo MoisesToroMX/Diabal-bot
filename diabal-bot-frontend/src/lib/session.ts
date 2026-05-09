@@ -14,15 +14,15 @@ export function getSessionSummary(session: SessionData) {
   const mapped = countMappedFields(session);
   const missing = targetMappings.length - mapped;
   const mappingStatus = missing
-    ? `${missing} fields need review.`
-    : "All target fields mapped.";
+    ? `${missing} campos necesitan revisión.`
+    : "Todos los campos objetivo están mapeados.";
   const dynamicStatus = dynamicCount
-    ? `Added ${dynamicCount} dynamic JSON fields.`
+    ? `Agregué ${dynamicCount} campos dinámicos al JSON.`
     : null;
 
   return [
-    `Loaded ${session.rowCount} products from ${session.originalFileName}.`,
-    `Mapped ${mapped}/${targetMappings.length} target fields.`,
+    `Cargué ${session.rowCount} productos desde ${session.originalFileName}.`,
+    `Mapeé ${mapped}/${targetMappings.length} campos objetivo.`,
     mappingStatus,
     dynamicStatus,
   ]

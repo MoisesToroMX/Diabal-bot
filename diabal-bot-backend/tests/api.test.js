@@ -45,5 +45,5 @@ test('rejects unsupported uploads', async () => {
     .attach('file', Buffer.from('not a spreadsheet'), 'notes.txt')
     .expect(400)
 
-  assert.match(response.body.error, /Unsupported file type/)
+  assert.match(response.body.error, /Tipo de archivo no soportado/)
 })

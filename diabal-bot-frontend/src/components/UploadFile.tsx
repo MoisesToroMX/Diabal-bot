@@ -56,7 +56,7 @@ function UploadArea({ onFileAccepted }: UploadAreaProps) {
       if (!selectedFile) return;
 
       if (!isAcceptedProductFile(selectedFile.name)) {
-        setError("Invalid format. Only CSV and XLSX files are allowed.");
+        setError("Formato inválido. Solo se permiten CSV y XLSX.");
         onFileAccepted?.(null);
         setNewFile(null);
 
@@ -112,7 +112,7 @@ function UploadArea({ onFileAccepted }: UploadAreaProps) {
           <div className="mt-2 text-red-400">{error}</div>
         ) : newFile ? (
           <div className="mt-2">
-            <span className="font-medium text-white">Selected:</span>{" "}
+            <span className="font-medium text-white">Seleccionado:</span>{" "}
             {newFile.name}{" "}
             <span className="text-zinc-400">
               ({formatFileSize(newFile.size)})
@@ -120,8 +120,8 @@ function UploadArea({ onFileAccepted }: UploadAreaProps) {
           </div>
         ) : (
           <>
-            <p>Click (or drag & drop) to select a file</p>
-            <span className="text-zinc-400">Accepted formats: CSV, XLSX</span>
+            <p>Haz click o arrastra un archivo</p>
+            <span className="text-zinc-400">Formatos: CSV, XLSX</span>
           </>
         )}
       </div>
@@ -174,14 +174,14 @@ function UploadFile({ onFileUpload }: UploadFileProps) {
 
   return (
     <>
-      <UploadButton color="primary" label="Upload File" onPress={onOpen} />
+      <UploadButton color="primary" label="Subir archivo" onPress={onOpen} />
 
       <Modal backdrop="blur" isOpen={isOpen} onOpenChange={onOpenChange}>
         <ModalContent>
           {() => (
             <>
               <ModalHeader className="flex flex-col gap-1">
-                Select your file
+                Selecciona tu archivo
               </ModalHeader>
               <ModalBody>
                 <UploadArea onFileAccepted={setFile} />
@@ -191,7 +191,7 @@ function UploadFile({ onFileUpload }: UploadFileProps) {
                 <UploadButton
                   isDisabled={!file || isUploading}
                   isLoading={isUploading}
-                  label="Send"
+                  label="Enviar"
                   onPress={handleSend}
                 />
               </ModalFooter>

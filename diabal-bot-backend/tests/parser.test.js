@@ -66,3 +66,23 @@ test('adds unmatched source columns as dynamic JSON properties', async () => {
     true
   )
 })
+
+test('maps Spanish product column names', async () => {
+  const csv = [
+    'Nombre del Producto,Orden de Compra,País de Origen,Proveedor,Correo del Proveedor,Composición',
+    'Camisa de Lino,OC-44,México,Taller Norte,ventas@example.com,100% lino'
+  ].join('\n')
+
+  const result = await parseSpreadsheetBuffer({
+    buffer: Buffer.from(csv),
+    fileName: 'productos.csv',
+    mimeType: 'text/csv'
+  })
+
+  assert.equal(result.products[0].product_name, 'Camisa de Lino')
+  assert.equal(result.products[0].purchase_order, 'OC-44')
+  assert.equal(result.products[0].country_of_origin, 'México')
+  assert.equal(result.products[0].supplier, 'Taller Norte')
+  assert.equal(result.products[0].supplier_email, 'ventas@example.com')
+  assert.equal(result.products[0].material_composition, '100% lino')
+})

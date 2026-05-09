@@ -10,7 +10,11 @@ export const PRODUCT_FIELDS = [
       'po number',
       'order number',
       'order id',
-      'purchase id'
+      'purchase id',
+      'orden de compra',
+      'numero de orden',
+      'numero de compra',
+      'pedido'
     ]
   },
   {
@@ -24,7 +28,11 @@ export const PRODUCT_FIELDS = [
       'style name',
       'item name',
       'description',
-      'product description'
+      'product description',
+      'producto',
+      'nombre del producto',
+      'descripcion',
+      'descripcion del producto'
     ]
   },
   {
@@ -37,7 +45,11 @@ export const PRODUCT_FIELDS = [
       'origin',
       'origin country',
       'made in',
-      'coo'
+      'coo',
+      'pais',
+      'pais de origen',
+      'origen',
+      'hecho en'
     ]
   },
   {
@@ -50,7 +62,10 @@ export const PRODUCT_FIELDS = [
       'vendor',
       'vendor name',
       'manufacturer',
-      'factory owner'
+      'factory owner',
+      'proveedor',
+      'nombre del proveedor',
+      'fabricante'
     ]
   },
   {
@@ -62,7 +77,10 @@ export const PRODUCT_FIELDS = [
       'supplier contact email',
       'vendor email',
       'manufacturer email',
-      'contact email'
+      'contact email',
+      'correo del proveedor',
+      'email del proveedor',
+      'correo de contacto'
     ]
   },
   {
@@ -74,7 +92,11 @@ export const PRODUCT_FIELDS = [
       'certifications',
       'certificate',
       'certificates',
-      'cert'
+      'cert',
+      'certificacion',
+      'certificaciones',
+      'certificado',
+      'certificados'
     ]
   },
   {
@@ -87,7 +109,11 @@ export const PRODUCT_FIELDS = [
       'status of certification',
       'cert status',
       'certificate status',
-      'validity'
+      'validity',
+      'estado de certificaciones',
+      'estado de certificacion',
+      'vigencia',
+      'validez'
     ]
   },
   {
@@ -101,7 +127,12 @@ export const PRODUCT_FIELDS = [
       'composition',
       'fabric',
       'fabric content',
-      'fiber content'
+      'fiber content',
+      'material',
+      'materiales',
+      'composicion',
+      'composicion del material',
+      'tela'
     ]
   },
   {
@@ -112,7 +143,9 @@ export const PRODUCT_FIELDS = [
       'season',
       'collection',
       'seasonal designation',
-      'drop'
+      'drop',
+      'temporada',
+      'coleccion'
     ]
   },
   {
@@ -124,7 +157,10 @@ export const PRODUCT_FIELDS = [
       'style code',
       'item code',
       'product code',
-      'variant code'
+      'variant code',
+      'codigo sku',
+      'codigo de producto',
+      'codigo de articulo'
     ]
   },
   {
@@ -135,7 +171,9 @@ export const PRODUCT_FIELDS = [
       'color',
       'colour',
       'colorway',
-      'shade'
+      'shade',
+      'color',
+      'tono'
     ]
   },
   {
@@ -148,7 +186,11 @@ export const PRODUCT_FIELDS = [
       'factory',
       'factory name',
       'mill',
-      'production facility'
+      'production facility',
+      'planta',
+      'nombre de planta',
+      'fabrica',
+      'nombre de fabrica'
     ]
   },
   {
@@ -160,7 +202,10 @@ export const PRODUCT_FIELDS = [
       'factory address',
       'address',
       'production address',
-      'site address'
+      'site address',
+      'direccion de planta',
+      'direccion de fabrica',
+      'direccion'
     ]
   },
   {
@@ -171,7 +216,10 @@ export const PRODUCT_FIELDS = [
       'facility email',
       'factory email',
       'site email',
-      'production email'
+      'production email',
+      'correo de planta',
+      'email de planta',
+      'correo de fabrica'
     ]
   },
   {
@@ -184,7 +232,10 @@ export const PRODUCT_FIELDS = [
       'factory contact',
       'factory contact name',
       'contact name',
-      'representative'
+      'representative',
+      'contacto de planta',
+      'nombre de contacto',
+      'representante'
     ]
   }
 ]

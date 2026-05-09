@@ -100,13 +100,14 @@ describe("ChatView", () => {
 
     renderChat();
 
-    expect(screen.queryByText("Field mapping")).not.toBeInTheDocument();
+    expect(
+      screen.getByText(/Soy Diabal Bot. Convierto CSV\/XLSX/),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Mapeo de campos")).not.toBeInTheDocument();
 
     const detailsButton = await screen.findByTestId("file-details-button");
 
-    await waitFor(() =>
-      expect(detailsButton).toHaveTextContent("File details"),
-    );
+    await waitFor(() => expect(detailsButton).toHaveTextContent("Detalles"));
     expect(screen.getByTestId("messages-scroll")).toHaveClass(
       "overflow-y-auto",
     );
@@ -118,8 +119,8 @@ describe("ChatView", () => {
 
     expect(await screen.findByTestId("file-details-panel")).toBeInTheDocument();
     expect(screen.getByText("products.csv")).toBeInTheDocument();
-    expect(screen.getByText("Field mapping")).toBeInTheDocument();
-    expect(screen.getByText("dynamic")).toBeInTheDocument();
+    expect(screen.getByText("Mapeo de campos")).toBeInTheDocument();
+    expect(screen.getByText("dinámico")).toBeInTheDocument();
   });
 
   it("uploads a dropped CSV file from the chat surface", async () => {
@@ -139,7 +140,9 @@ describe("ChatView", () => {
       dataTransfer: { files: [file], types: ["Files"] },
     });
 
-    expect(screen.getByText("Drop file to upload")).toBeInTheDocument();
+    expect(
+      screen.getByText("Suelta el archivo para cargarlo"),
+    ).toBeInTheDocument();
 
     fireEvent.drop(dropZone, {
       dataTransfer: { files: [file], types: ["Files"] },
@@ -153,7 +156,7 @@ describe("ChatView", () => {
       ),
     );
     expect(
-      await screen.findByText(/Loaded 1 products from drop\.csv\./),
+      await screen.findByText(/Cargué 1 productos desde drop\.csv\./),
     ).toBeInTheDocument();
   });
 });

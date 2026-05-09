@@ -2,6 +2,10 @@
 
 Prototype for the Excel-to-JSON chat flow challenge.
 
+Diabal Bot helps a user turn a product spreadsheet into a clean JSON file.
+It guides the user step by step: upload the file, review the detected mapping,
+fix values by chat, confirm the result, and download the final JSON.
+
 The app lets a user upload a CSV or XLSX product file, maps flexible source
 columns into a product JSON schema, keeps unmatched columns as dynamic JSON
 properties, allows small edits through a chat-style interface, and downloads
@@ -54,6 +58,17 @@ show row 1
 show json
 set row 2 supplier_email to qa@example.com
 confirm
+```
+
+Spanish commands are also supported:
+
+```text
+mapeo
+ver fila 1
+mostrar json
+cambia fila 2 supplier_email a qa@example.com
+confirmar
+para que sirve este bot
 ```
 
 Stop containers:

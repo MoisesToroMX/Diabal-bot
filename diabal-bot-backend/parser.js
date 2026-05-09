@@ -233,7 +233,7 @@ function rowsToProducts(rows) {
     return {
       products,
       mappings,
-      warnings: ['No header row was found.'],
+      warnings: ['No se encontró una fila de encabezados.'],
       headerRow: headerIndex + 1
     }
   }
@@ -260,11 +260,11 @@ function rowsToProducts(rows) {
     .map((mapping) => mapping.field)
 
   if (missingFields.length) {
-    warnings.push(`Missing mapped columns: ${missingFields.join(', ')}`)
+    warnings.push(`Faltan columnas mapeadas: ${missingFields.join(', ')}`)
   }
 
   if (rows.length > headerIndex + 1 + MAX_ROWS) {
-    warnings.push(`Only the first ${MAX_ROWS} data rows were imported.`)
+    warnings.push(`Solo se importaron las primeras ${MAX_ROWS} filas.`)
   }
 
   return {
@@ -307,7 +307,7 @@ export async function parseSpreadsheetBuffer({ buffer, fileName, mimeType }) {
   ) {
     rows = await parseXlsxBuffer(buffer)
   } else {
-    throw new Error('Unsupported file type. Use .csv or .xlsx.')
+    throw new Error('Tipo de archivo no soportado. Usa .csv o .xlsx.')
   }
 
   return rowsToProducts(rows)

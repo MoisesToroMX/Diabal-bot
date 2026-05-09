@@ -52,24 +52,25 @@ function summarizeSession(session) {
     return mapping.sourceColumn
   }).length
   const warningText = session.warnings.length
-    ? ` Warnings: ${session.warnings.join(' | ')}`
+    ? ` Advertencias: ${session.warnings.join(' | ')}`
     : ''
   const dynamicText = dynamicCount
-    ? ` Added ${dynamicCount} dynamic JSON fields.`
+    ? ` Agregué ${dynamicCount} campos dinámicos al JSON.`
     : ''
 
   return [
-    `Loaded ${session.products.length} products from ${session.originalFileName}.`,
-    `Mapped ${mappedCount}/${targetMappings.length} target fields.`,
-    'Ask for "mapping", "show row 1", "set row 2 supplier_email to x@y.com",',
-    `or "confirm".${dynamicText}${warningText}`
+    `Cargué ${session.products.length} productos desde ${session.originalFileName}.`,
+    `Mapeé ${mappedCount}/${targetMappings.length} campos objetivo.`,
+    'Puedes pedir "mapeo", "ver fila 1",',
+    '"cambia fila 2 supplier_email a x@y.com" o "confirmar".',
+    `${dynamicText}${warningText}`
   ].join(' ')
 }
 
 function formatMapping(session) {
   return session.mappings
     .map((mapping) => {
-      const source = mapping.sourceColumn ?? 'not mapped'
+      const source = mapping.sourceColumn ?? 'sin mapear'
 
       return `${mapping.field}: ${source}`
     })
@@ -81,7 +82,18 @@ function formatProduct(product, index) {
     return `  ${key}: ${value || ''}`
   })
 
-  return `Row ${index + 1}\n${lines.join('\n')}`
+  return `Fila ${index + 1}\n${lines.join('\n')}`
+}
+
+function getHelpResponse() {
+  return [
+    'Soy Diabal Bot.',
+    'Sirvo para convertir un CSV o XLSX de productos en un JSON limpio.',
+    'Detecto columnas aunque vengan con nombres diferentes, agrego columnas',
+    'extra como propiedades dinámicas y te dejo corregir valores por chat.',
+    'Ejemplos: "mapeo", "ver fila 1",',
+    '"cambia fila 2 supplier_email a qa@example.com" y "confirmar".'
+  ].join(' ')
 }
 
 function normalizeFieldText(value) {
@@ -146,7 +158,9 @@ function findField(input, session) {
 }
 
 function parseRowNumber(input) {
-  const match = normalizeText(input).match(/\b(?:row|fila)\s+(\d+)\b/)
+  const match = normalizeText(input).match(
+    /\b(?:row|fila|renglon|registro|producto)\s+(\d+)\b/
+  )
 
   return match ? Number(match[1]) : null
 }
@@ -182,30 +196,51 @@ function updateField(session, update) {
   const product = session.products[rowIndex]
 
   if (!product) {
-    return `Row ${update.rowNumber} does not exist.`
+    return `La fila ${update.rowNumber} no existe.`
   }
 
   if (!(update.field in product)) {
-    return `Field "${update.field}" does not exist in the current JSON.`
+    return `El campo "${update.field}" no existe en el JSON actual.`
   }
 
   product[update.field] = update.value.slice(0, 1000)
 
-  return `Updated row ${update.rowNumber}: ${update.field} = ${product[update.field]}`
+  return `Actualicé fila ${update.rowNumber}: ${update.field} = ${product[update.field]}`
+}
+
+function isHelpCommand(normalized) {
+  const helpTerms = [
+    'ayuda',
+    'que haces',
+    'para que',
+    'como funciona',
+    'que puedes hacer',
+    'proposito',
+    'objetivo',
+    'help',
+    'what do you do'
+  ]
+
+  return helpTerms.some((term) => normalized.includes(term))
 }
 
 function handleReadCommand(input, session) {
   const normalized = normalizeText(input)
   const rowNumber = parseRowNumber(input)
 
-  if (normalized.includes('mapping') || normalized.includes('mapa')) {
+  if (
+    normalized.includes('mapping') ||
+    normalized.includes('mapa') ||
+    normalized.includes('mapeo') ||
+    normalized.includes('columnas')
+  ) {
     return formatMapping(session)
   }
 
   if (rowNumber) {
     const product = session.products[rowNumber - 1]
 
-    return product ? formatProduct(product, rowNumber - 1) : 'Row not found.'
+    return product ? formatProduct(product, rowNumber - 1) : 'Fila no encontrada.'
   }
 
   if (
@@ -213,12 +248,13 @@ function handleReadCommand(input, session) {
     normalized.includes('json') ||
     normalized.includes('table') ||
     normalized.includes('tabla') ||
-    normalized.includes('ver')
+    normalized.includes('ver') ||
+    normalized.includes('mostrar')
   ) {
     const preview = session.products.slice(0, 3)
 
     return `${JSON.stringify(preview, null, 2)}${
-      session.products.length > 3 ? '\nShowing first 3 rows.' : ''
+      session.products.length > 3 ? '\nMostrando las primeras 3 filas.' : ''
     }`
   }
 
@@ -229,19 +265,29 @@ export async function runCsvAgent(input, sessionId) {
   const text = String(input ?? '').trim()
   const session = sessionStore.get(sessionId)
 
+  if (text && isHelpCommand(normalizeText(text))) {
+    return {
+      action: 'answer',
+      text: getHelpResponse(),
+      session: session ? clone(session) : null
+    }
+  }
+
   if (!session) {
     return {
       action: 'answer',
-      text: 'Upload a CSV or XLSX file first.'
+      text: 'Primero sube un archivo CSV o XLSX.'
     }
   }
 
   if (!text) {
     return {
       action: 'answer',
-      text: 'Send a command or question about the uploaded data.'
+      text: 'Manda un comando o pregunta sobre los datos cargados.'
     }
   }
+
+  const normalized = normalizeText(text)
 
   const update = parseUpdate(text, session)
 
@@ -255,14 +301,12 @@ export async function runCsvAgent(input, sessionId) {
     }
   }
 
-  const normalized = normalizeText(text)
-
   if (normalized.includes('confirm') || normalized.includes('confirmar')) {
     session.confirmedAt = nowIso()
 
     return {
       action: 'confirm',
-      text: 'Confirmed. Final JSON is ready to download.',
+      text: 'Confirmado. El JSON final está listo para descargar.',
       session: clone(session)
     }
   }
@@ -287,5 +331,5 @@ export async function runCsvAgent(input, sessionId) {
 export function summarizeLoadedSession(sessionId) {
   const session = sessionStore.get(sessionId)
 
-  return session ? summarizeSession(session) : 'No file loaded.'
+  return session ? summarizeSession(session) : 'No hay archivo cargado.'
 }

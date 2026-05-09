@@ -55,9 +55,9 @@ describe("session helpers", () => {
   it("summarizes upload state", () => {
     const summary = getSessionSummary(makeSession());
 
-    expect(summary).toContain("Loaded 3 products from products.csv.");
-    expect(summary).toContain("Mapped 1/2 target fields.");
-    expect(summary).toContain("1 fields need review.");
-    expect(summary).toContain("Added 1 dynamic JSON fields.");
+    expect(summary).toContain("Cargué 3 productos desde products.csv.");
+    expect(summary).toContain("Mapeé 1/2 campos objetivo.");
+    expect(summary).toContain("1 campos necesitan revisión.");
+    expect(summary).toContain("Agregué 1 campos dinámicos al JSON.");
   });
 });
