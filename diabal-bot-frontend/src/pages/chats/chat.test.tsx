@@ -158,5 +158,12 @@ describe("ChatView", () => {
     expect(
       await screen.findByText(/Cargué 1 productos desde drop\.csv\./),
     ).toBeInTheDocument();
+    const userAvatar = await screen.findByTestId("user-message-avatar");
+    const userAvatarImage = userAvatar.querySelector("img");
+
+    expect(userAvatarImage).toHaveAttribute(
+      "src",
+      expect.stringContaining("data:image/svg+xml"),
+    );
   });
 });

@@ -7,6 +7,7 @@ import {
   useState,
 } from "react";
 import { useParams } from "react-router-dom";
+import { faker } from "@faker-js/faker";
 import {
   Avatar,
   Button,
@@ -57,6 +58,45 @@ const guideMessage: Msg = {
 const seed: Record<string, Msg[]> = {
   "1": [guideMessage],
 };
+
+function makeAnimalAvatar() {
+  faker.seed(20270508);
+
+  const animal = faker.helpers.arrayElement([
+    { label: "zorro", accent: "#f97316", fur: "#fb923c" },
+    { label: "lobo", accent: "#64748b", fur: "#94a3b8" },
+    { label: "gato", accent: "#a855f7", fur: "#c084fc" },
+    { label: "perro", accent: "#0ea5e9", fur: "#38bdf8" },
+  ]);
+
+  const background = faker.helpers.arrayElement([
+    "#172554",
+    "#164e63",
+    "#1f2937",
+    "#312e81",
+  ]);
+  const svg = [
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">',
+    `<rect width="128" height="128" rx="64" fill="${background}"/>`,
+    `<path d="M36 47 45 20 61 42Z" fill="${animal.accent}"/>`,
+    `<path d="M92 47 83 20 67 42Z" fill="${animal.accent}"/>`,
+    `<path d="M34 70c0-23 15-39 30-39s30 16 30 39c0 20-13 34-30 34S34 90 34 70Z" fill="${animal.fur}"/>`,
+    '<path d="M48 67c0-4 3-7 7-7s7 3 7 7-3 7-7 7-7-3-7-7Z" fill="#111827"/>',
+    '<path d="M66 67c0-4 3-7 7-7s7 3 7 7-3 7-7 7-7-3-7-7Z" fill="#111827"/>',
+    '<path d="M59 82h10l-5 6Z" fill="#111827"/>',
+    '<path d="M45 91c10 12 28 12 38 0" fill="none" stroke="#111827" stroke-width="6" stroke-linecap="round"/>',
+    '<circle cx="57" cy="65" r="2" fill="#fff"/>',
+    '<circle cx="75" cy="65" r="2" fill="#fff"/>',
+    "</svg>",
+  ].join("");
+
+  return {
+    label: animal.label,
+    url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
+  };
+}
+
+const userAnimalAvatar = makeAnimalAvatar();
 
 function makeLocalMessage(from: Msg["from"], text: string): Msg {
   return {
@@ -276,6 +316,17 @@ function MessageRow({ msg, isMine, showAvatar }: MessageRowProps) {
       )}
 
       <Card className={`${base} ${isMine ? mine : theirs}`}>{msg.text}</Card>
+
+      {isMine && (
+        <Avatar
+          className="min-w-8 self-end"
+          data-testid="user-message-avatar"
+          name={userAnimalAvatar.label}
+          radius="full"
+          size="sm"
+          src={userAnimalAvatar.url}
+        />
+      )}
     </div>
   );
 }
